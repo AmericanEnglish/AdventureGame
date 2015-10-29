@@ -1,0 +1,32 @@
+Game Stats:
+Size:
+8x8x8 -> Maybe start small and scale it up
+
+Commands:
+Movement commands examples: ({w,a,s,d}, {u,d,l,r})
+
+Motions, s is for sleep. Regenerates HP 2hp per sleep
+\ ^ /
+< S >
+/ V \
+
+Monster is a VANTZ -> some bite thing
+If you are sleeping and a vantz moves onto you, lose 3hp
+Doesn't bite while awake.
+
+Vantz spawn rate TBD
+
+Three items:
+Diamon -> Victory Condition
+Sammich -> HP up, increment up to experimentation
+Mustard -> Doubles sammich value for x sammichs
+
+Functionality
+Start of the game
+-> prints starting position
+End Game
+-> If user quits, dies, wins
+--> prints board location
+
+Debug:
+Might add ability to print at will and removal at launch
