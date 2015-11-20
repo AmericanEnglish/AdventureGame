@@ -1,6 +1,7 @@
 .data
 backward: .asciiz "s"
 down: .asciiz "f"
+eat: .asciiz "e"
 forward: .asciiz "w"
 invalid: .asciiz "Wat?\n"
 left: .asciiz "a"
@@ -60,6 +61,10 @@ analyze:
     la $t1, up
     lbu $t1, $t1
     beq $t1, $t0, u
+
+    la $t1, eat
+    lbu $t1, $t1
+    beq $t1, $t0, eet
 
     beq $zero, $t0
     b invalid
