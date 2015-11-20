@@ -33,35 +33,35 @@ return:
 analyze:
     lbu $t0, $s0 # Starts reading the string
     
-    la $t2, quit
+    la $t1, quit
     lbu $t1, $t1
     beq $t0, $t1, exit
     
     la $t1, backward
     lbu $t1, $t1
-    beq $t1, $t2, back
+    beq $t1, $t0, back
     
     la $t1, down
     lbu $t1, $t1
-    beq $t1, $t2, dwn
+    beq $t1, $t0, dwn
     
     la $t1, forward
     lbu $t1, $t1
-    beq $t1, $t2, fwd
+    beq $t1, $t0, fwd
     
     la $t1, left
     lbu $t1, $t1
-    beq $t1, $t2,lft
+    beq $t1, $t0,lft
 
     la $t1, right
     lbu $t1, $t1
-    beq $t1, $t2, rght
+    beq $t1, $t0, rght
 
     la $t1, up
     lbu $t1, $t1
-    beq $t1, $t2, u
+    beq $t1, $t0, u
 
-    beq $zero, $t2
+    beq $zero, $t0
     b invalid
 
 invalid:
