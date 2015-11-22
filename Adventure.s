@@ -73,3 +73,5 @@ invalid:
     la $a0, invalid
     li v0, 4
     syscall
+    j return
+
