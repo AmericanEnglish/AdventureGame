@@ -43,14 +43,16 @@ init:
     li $a0, 511 # Array max
     li $a1, 1   # init value
     jal array_init
+    
     # Generate Pieces
     # 1% Of all squares are enemies
     la $s0, array
+    li $a3, 3   # Object Number
     li $a1, 512 # Array Max
+    li $t2, 8   # Array Size
     li $t0, 0   # Current Creatures
     li $t1, 51  # Max Creature Count
     jal creature_gen
-
     # Place Sammiches
     jal sammich_controller
 
@@ -66,14 +68,23 @@ creature_gen:
     li $v0, 42
     syscall
 
+    # For byte adjustment
+    li $v0, 4
+    mult $v0, $a0
+    mflo $a0
+    
+    # Store The Creature
+    sw $a3, $s0($a0)
+
     addi $t0, $t0, 1
     beq $t0, $t1, return
+    b creature_gen
 
-sammich_controller:
+sammich_controller: # Adjusts Layer
     # Generate per layer
     # 6 Sammiches per layer, this will even out sammich distribution a little more
     jal sammich_gen
-    
+
 sammich_gen:
 
 # Game Starts
@@ -177,3 +188,13 @@ eet:
     # Move creature
 win:
 death:
+
+## Math out the index
+#div $a0,  $t2 # x
+#mfhi $t4 # Store x
+#mflo $a0
+#div $a0, $t2 # y
+#mfhi $t5 # Store y
+#mflo $a0
+#div $a0, $t2 # z
+#mfhi $t6 # Store z
