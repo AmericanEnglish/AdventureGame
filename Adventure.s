@@ -56,6 +56,16 @@ init:
     # Place Sammiches
     jal sammich_controller
 
+    # Place Diamond
+    li $v0, 42
+    li $a1, 512
+    syscall
+    li $a1, 4 
+    mult $a0, $a1
+    mflo $a0
+    li $a2, 11
+    sw $a2, $s0($a0)
+    
 array_init: # Generates an array of 1's
     sw $a1, $s0
     addi $t0, $t0, 1
