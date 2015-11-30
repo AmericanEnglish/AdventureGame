@@ -1,5 +1,6 @@
 .data
 backward: .asciiz "s"
+buffer: .space 6
 down: .asciiz "f"
 eat: .asciiz "e"
 forward: .asciiz "w"
@@ -17,10 +18,17 @@ prompt:
     la $a0, prompt # Gather String
     li $v0, 4
     syscall
-    la $a0, $sp # STACK TIME SON
+    la $a0, buffer
     li $v0, # num for read string
-    la $s0, $sp
+    add $s0, $a0, $zero # Move address
     jal analyze
+    li $a1, 0
+    
+    # Reset buffer space
+    la $s0, buffer
+    sw $zero, $s0
+    sb $zero, $s0(1)
+    sb $zer0, $s0(2) 
     b prompt
 
 exit:
@@ -52,7 +60,7 @@ analyze:
     
     la $t1, left
     lbu $t1, $t1
-    beq $t1, $t0,lft
+    beq $t1, $t0, lft
 
     la $t1, right
     lbu $t1, $t1
@@ -60,13 +68,17 @@ analyze:
 
     la $t1, up
     lbu $t1, $t1
-    beq $t1, $t0, u
+    beq $t1, $t0, rise
 
     la $t1, eat
     lbu $t1, $t1
     beq $t1, $t0, eet
 
-    beq $zero, $t0
+    la $t1, nline
+    lbu $t1, $t1
+    beq $t1, $t0, return
+    beq $zero, $t0, return
+
     b invalid
 
 invalid:
@@ -75,3 +87,14 @@ invalid:
     syscall
     j return
 
+exit:
+    li $v0, 10
+    syscall
+
+back:
+dwn:
+fwd:
+lft:
+rght:
+rise:
+eet:
