@@ -49,13 +49,16 @@ init:
     la $s0, array
     li $a3, 3   # Object Number
     li $a1, 512 # Array Max
-    li $t2, 8   # Array Size
     li $t0, 0   # Current Creatures
     li $t1, 51  # Max Creature Count
     jal creature_gen
     # Place Sammiches
+    li $s1, 0  # Sammich Layers Handled
+    li $a1, 64 # Grid size in the layer
+    li $a2, 8  # Layers
+    li $a3, 6  # Sammiches to Be Placed
+    li $s2, 5  # Object Number
     jal sammich_controller
-
     # Place Diamond
     li $v0, 42
     li $a1, 512
@@ -64,8 +67,14 @@ init:
     mult $a0, $a1
     mflo $a0
     li $a2, 11
-    sw $a2, $s0($a0)
-    
+    sw $a2, $a0($s0)
+
+    # Log Start time
+    li $v0, 30
+    syscall
+    addi $s4, $a1, $zero  # Move the lower 32 bits of time
+    j prompt
+
 array_init: # Generates an array of 1's
     sw $a1, $s0
     addi $t0, $t0, 1
@@ -84,18 +93,46 @@ creature_gen:
     mflo $a0
     
     # Store The Creature
-    sw $a3, $s0($a0)
-
+    sw $a3, $a0($s0)
     addi $t0, $t0, 1
+    
     beq $t0, $t1, return
     b creature_gen
 
 sammich_controller: # Adjusts Layer
     # Generate per layer
+    li $t0, 0 # Completed Sammiches
+    # Needed for more JAL
+    addi $sp, $sp, -4
+    sw $ra, ($sp)
     # 6 Sammiches per layer, this will even out sammich distribution a little more
     jal sammich_gen
+    addi $s1, $s1, 1
+    lw $ra, ($sp)
+    addi $sp, $sp 4
+    
+    beq $s1, $a2, return
+    b sammich_controller
 
 sammich_gen:
+    li $v0, 42
+    syscall
+    # 64 * Layer + Location
+    mult $a1,  $s1
+    mflo $t9
+    addi $a0, $a0, $t9
+    li $v0, 4
+    mult $a0, $v0 # Convert Index -> Bytes
+    mflo $a0 # Index After Padding
+    lw $t9, $a0($s0) # Extract Number
+    mult $t9, $s2 # Add A Sammich
+    mflo $t9 # Some composite number that indicates Sammich added
+    sw $t9, $a0($s0)
+    addi $t0, $t0, 1
+    beq $a3, $t0, return
+    b sammich_gen
+
+
 
 # Game Starts
 prompt:
