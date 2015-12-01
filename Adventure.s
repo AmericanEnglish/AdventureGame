@@ -1,17 +1,23 @@
 .data
 array: .space 2048 # 8 * 8 * 8 3-Dimensional Array (* 4 Bytes)
-answer_y: .asciiz "y"
-backward: .asciiz "s"
 buffer: .space 6 # 4 input chars, a \n and the null terminator
-ded: .asciiz "You are dead. 100% so. \n"
 dimx: .word 7
 dimy: .word 7
 dimz: .word 7
+health: .word 10
+must: .word 0 # Mustard Byte
+sam: .word 0 # Sammich byte
+total: .word 0 # Total Moves
+x: .word 0
+y: .word 0
+z: .word 0
+answer_y: .asciiz "y"
+backward: .asciiz "s"
+ded: .asciiz "You are dead. 100% so. \n"
 down: .asciiz "f"
 eat: .asciiz "e"
 empty_sammich: .asciiz "Alas, your hands, do not qualify as a sammich.\nFirst find a sammich if youre hungry.\nTheyre everywhere.\n"
 forward: .asciiz "w"
-health: .word 10
 inval: .asciiz "Wat?\n"
 leave: .asciiz "Goodbye.\n"
 left: .asciiz "a"
@@ -21,24 +27,21 @@ move3: .asciiz "LEFTWARD !\n"
 move4: .asciiz "RIGHTWARD!\n"
 move5: .asciiz "UPWARD   !\n"
 move6: .asciiz "DOWNWARD !\n"
-must: .word 0 # Mustard Byte
 mustard_success: .asciiz "Youve acquired mustard!\nEnjoy the . . . tasty? . . . flavor on your sammichs\nfor triple the sammich goodness."
 mustard_failed: .asciiz "Youve discovered mustard!\nAlthough you still have some left. Waste less, and leave it till\nyou finish this one."
 nline: .asciiz "\n"
 prompt: .asciiz "->> "
 right: .asciiz "d"
-sam: .word 0 # Sammich byte
+consume: "Youve eaten the sammich and feel much less hungry. HP +2.\n"
+consume_must: "Slathering the mustard on you animal. HP +4.\n"
 sammich_success: .asciiz "Youve acquired a sammich!\nRestores 2 HP upon consumption\n"
 sammich_failed: .asciiz "Youve discovered a sammich!\nYou are holding four already!\nNo more 4 you!\n"
 setup_1: .asciiz "Hello! Welcome to AssemblyAdventure!\nType h for [h]elp. The interpreter process four character commands at a time.\nAnymore than that will be ignored or worse, crunked up.\nFind the diamond and goodluck!\n"
-total: .word 0 # Total Moves
 up: .asciiz "r"
 use: .asciiz "Use mustard? (y/n): "
 quit: .asciiz "q"
 vic: .asciiz "You win! I guess . . . whooooo . . .\n"
-x: .word 0
-y: .word 0
-z: .word 0
+
 # Creature:  3
 # Diamond:  11
 # Empty:     1
@@ -482,6 +485,9 @@ eet:
     lw $t0, health
     la $t1, health
     addi $t0, $t0, 2
+    sw $t0, ($t1)
+
+    print (consume)
     # Move creature
     j move_creatures
 
@@ -513,6 +519,9 @@ eet_must_q:
     la $t1, health
     addi $t0, $t0, 6
     sw $t0, ($t1)
+
+    print (consume)
+    print (consume_must)
     j move_creatures
 
 
