@@ -2,12 +2,13 @@
 array: .space 2048 # 8 * 8 * 8 3-Dimensional Array (* 4 Bytes)
 backward: .asciiz "s"
 buffer: .space 6 # 4 input chars, a \n and the null terminator
-dimx: .word 8
-dimy: .word 8
-dimz: .word 8
+dimx: .word 7
+dimy: .word 7
+dimz: .word 7
 down: .asciiz "f"
 eat: .asciiz "e"
 forward: .asciiz "w"
+health: .word 10
 invalid: .asciiz "Wat?\n"
 left: .asciiz "a"
 must: .space 1 # Mustard Byte
@@ -29,6 +30,18 @@ z: .word 0
 # Sammich:   5
 
 .text
+
+.marco store_counter
+    addi $sp, $sp, -4
+    sw $ra, ($sp)  
+.end_macro
+
+
+.marco recover_counter
+    lw $ra, $sp
+    addi $sp, $sp, 4
+.end_macro
+
 
 init:
     # Print Setup Text
@@ -103,13 +116,11 @@ sammich_controller: # Adjusts Layer
     # Generate per layer
     li $t0, 0 # Completed Sammiches
     # Needed for more JAL
-    addi $sp, $sp, -4
-    sw $ra, ($sp)
+    store_counter
     # 6 Sammiches per layer, this will even out sammich distribution a little more
     jal sammich_gen
     addi $s1, $s1, 1
-    lw $ra, ($sp)
-    addi $sp, $sp 4
+    recover_counter
     
     beq $s1, $a2, return
     b sammich_controller
@@ -211,30 +222,187 @@ invalid:
 exit:
     li $v0, 10
     syscall
+adjust_upper_bounds:
+    li $a0, 0
+    sw $a0, $a1
+    j return
+
+adjust_lower_bounds:
+    li $a0, 7
+    sw $a0, ($a1)
+    j return
 
 # Proces Movements
 back:
     # Check Array Dimensions
-    # Branch
-    # Or Move
+    lw $t1, y
+    la $a1, y
+    # Move
+    addi $t1, $t1, -1
+    
+    # Boundary Check
+    store_counter
+    bltzal $t1, adjust_lower_bounds
+    recover_counter
+    
     # Decrement HP
-    # Store $ra
+    store_counter
+    jal decrement
+    recover_counter
+    
     # JAL to Win Check
-    # JAL to death check
-    # Move Creature
+    store_counter
+    jal win
+    recover_counter
+    # Move Creatures
+    j move_creatures
+
 dwn:
-fwd:
+    # Check Array Dimensions
+    lw $t1, z
+    la $a1, z
+    # Move
+    addi $t1, $t1, -1
+    
+    # Boundary Check
+    store_counter
+    bltzal $t1, adjust_lower_bounds
+    recover_counter
+    
+    # Decrement HP
+    store_counter
+    jal decrement
+    recover_counter
+    
+    # JAL to Win Check
+    store_counter
+    jal win
+    recover_counter
+    # Move Creatures
+    j move_creatures
+
 lft:
+    # Check Array Dimensions
+    lw $t1, x
+    la $a1, x
+    # Move
+    addi $t1, $t1, -1
+    
+    # Boundary Check
+    store_counter
+    bltzal $t1, adjust_lower_bounds
+    recover_counter
+    
+    # Decrement HP
+    store_counter
+    jal decrement
+    recover_counter
+    
+    # JAL to Win Check
+    store_counter
+    jal win
+    recover_counter
+    # Move Creatures
+    j move_creatures
+
+fwd:
+    # Check Array Dimensions
+    lw $t0, dimy
+    lw $t1, y
+    la $a1, y
+    # Move
+    addi $t1, $t1, 1
+    
+    # Boundary Check
+    store_counter
+    addi $ra, $pc, 8 # Link
+    bgt $t1, $t0, adjust_upper_bounds
+    recover_counter
+    
+    # Decrement HP
+    store_counter
+    jal decrement
+    recover_counter
+    
+    # JAL to Win Check
+    store_counter
+    jal win
+    recover_counter
+    # Move Creatures
+    j move_creatures
+
 rght:
+    # Check Array Dimensions
+    lw $t0, dimx
+    lw $t1, x
+    la $a1, x
+    # Move
+    addi $t1, $t1, 1
+    
+    # Boundary Check
+    store_counter
+    addi $ra, $pc, 8 # Link
+    bgt $t1, $t0, adjust_upper_bounds
+    recover_counter
+    
+    # Decrement HP
+    store_counter
+    jal decrement
+    recover_counter
+    
+    # JAL to Win Check
+    store_counter
+    jal win
+    recover_counter
+    # Move Creatures
+    j move_creatures
+
 rise:
+    # Check Array Dimensions
+    lw $t0, dimz
+    lw $t1, z
+    la $a1, z
+    # Move
+    addi $t1, $t1, 1
+    
+    # Boundary Check
+    store_counter
+    addi $ra, $pc, 8 # Link
+    bgt $t1, $t0, adjust_upper_bounds
+    recover_counter
+    
+    # Decrement HP
+    store_counter
+    jal decrement
+    recover_counter
+    
+    # JAL to Win Check
+    store_counter
+    jal win
+    recover_counter
+    # Move Creatures
+    j move_creatures
+
 eet:
     # Check Sammich Byte
     # Check Mustard Byte
     # Decrement Sammich Byte
     # Increment Hp
     # Move creature
+
 win:
+
 death:
+
+decrement:
+    la $a0, health
+    lw $a1, ($a0)
+    addi $a1, $a1, -1
+    blez $a1, death
+    sw $a1, ($a0)
+    j return
+
+move_creatures:
 
 ## Math out the index
 #div $a0,  $t2 # x
