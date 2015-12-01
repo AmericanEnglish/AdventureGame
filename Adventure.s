@@ -481,9 +481,30 @@ win:
 
 sammich_check:
     check_for (5)
+    beq $t0, $zero, sammich_found1
+    jr $ra
+
+sammich_found1: # Attempt to pickup
+    lb $t0, sam
+    li $t1, 6
+    bgt $t0, $t1, sammich_found3
+    b sammich_found2
+
+sammich_found2: # Attempt Successful
+    print (sammich_success)
+    sll $t0, $t0, 1
+    la $t3, sam
+    sb $t0, ($t3)
+    jr $ra
+    
+sammich_found3: # Attempt Failed
+    print (failed_sammich)
+    jr $ra
+
 mustard_check:
     check_for (7)
-
+    beq $t0, $zero, mustard_found
+    jr $ra
 
 death:
     print (ded)
