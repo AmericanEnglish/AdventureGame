@@ -169,9 +169,6 @@ prompt_loop:
     sb $zero, 4($s0)
     b prompt_loop
 
-return:
-    jr $ra
-
 # Runs the show
 analyze:
     lbu $t0, ($s0) # Starts reading the string
@@ -219,7 +216,7 @@ invalid:
     la $a0, inval
     li $v0, 4
     syscall
-    j return
+    jr $ra
 
 exit:
     # Log Death time
@@ -235,17 +232,17 @@ exit:
 
 upper_check:
     bgt $t1, $t0, adjust_upper_bounds
-    j return
+    jr $ra
 
 adjust_upper_bounds:
     li $a0, 0
     sw $a0, ($a1)
-    j return
+    jr $ra
 
 adjust_lower_bounds:
     li $a0, 7
     sw $a0, ($a1)
-    j return
+    jr $ra
 
 # Proces Movements
 back:
@@ -426,7 +423,7 @@ win:
     div $t8, $v0 # If 11 is a factor remainder is 0
     mflo $t0
     beq $t0, $zero, victory
-    j return
+    jr $ra
 
 death:
     la $a0, ded
@@ -446,7 +443,7 @@ decrement:
     addi $a1, $a1, -1
     blez $a1, death
     sw $a1, ($a0)
-    j return
+    jr $ra
 
 move_creatures:
 
