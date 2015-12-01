@@ -9,7 +9,7 @@ dimy: .word 7
 dimz: .word 7
 down: .asciiz "f"
 eat: .asciiz "e"
-empty_sammich: .asciiz "A las, your hands, do not qualify as a sammich.\nFirst find a sammich if you're hungry.\nThey're everywhere."
+empty_sammich: .asciiz "Alas, your hands, do not qualify as a sammich.\nFirst find a sammich if youre hungry.\nTheyre everywhere.\n"
 forward: .asciiz "w"
 health: .word 10
 inval: .asciiz "Wat?\n"
@@ -21,15 +21,15 @@ move3: .asciiz "LEFTWARD !\n"
 move4: .asciiz "RIGHTWARD!\n"
 move5: .asciiz "UPWARD   !\n"
 move6: .asciiz "DOWNWARD !\n"
-must: .space 1 # Mustard Byte
-mustard_success: .asciiz "You've acquired mustard!\nEnjoy the . . . tasty? . . . flavor on your sammichs\nfor triple the sammich goodness."
-mustard_failed: .asciiz "You've discovered mustard!\nAlthough you still have some left. Waste less, and leave it till\nyou finish this one."
+must: .word 0 # Mustard Byte
+mustard_success: .asciiz "Youve acquired mustard!\nEnjoy the . . . tasty? . . . flavor on your sammichs\nfor triple the sammich goodness."
+mustard_failed: .asciiz "Youve discovered mustard!\nAlthough you still have some left. Waste less, and leave it till\nyou finish this one."
 nline: .asciiz "\n"
 prompt: .asciiz "->> "
 right: .asciiz "d"
-sam: .space 1 # Sammich byte
-sammich_success: .asciiz "You've acquired a sammich!\nRestores 2 HP upon consumption\n"
-sammich_failed: .asciiz "You've discovered a sammich!\nYou are holding four already!\nNo more 4 you!\n"
+sam: .word 0 # Sammich byte
+sammich_success: .asciiz "Youve acquired a sammich!\nRestores 2 HP upon consumption\n"
+sammich_failed: .asciiz "Youve discovered a sammich!\nYou are holding four already!\nNo more 4 you!\n"
 setup_1: .asciiz "Hello! Welcome to AssemblyAdventure!\nType h for [h]elp. The interpreter process four character commands at a time.\nAnymore than that will be ignored or worse, crunked up.\nFind the diamond and goodluck!\n"
 total: .word 0 # Total Moves
 up: .asciiz "r"
@@ -168,7 +168,6 @@ init:
     li $a2, 11
     add $s0, $s0, $a0
     sw $a2, ($s0)
-
     # Log Start time
     li $v0, 30
     syscall
@@ -178,7 +177,7 @@ init:
 return:
     jr $ra
 
-array_init: # Generates an array of 1's
+array_init: # Generates an array of 1s
     sw $a1, ($s0)
     addi $t0, $t0, 1
     addi $s0, $s0, 4
@@ -263,6 +262,7 @@ prompt_loop:
     jal analyze
     li $a1, 0
     reset_buffer
+    print (nline)
     b prompt_loop
 
 # Runs the show
@@ -465,19 +465,19 @@ rise:
 
 eet:
     # Check Sammich Byte
-    lb $t0, sam
+    lw $t0, sam
     blez $t0, eet_failed
     
     # Check Mustard Byte
-    lb $t1, must
+    lw $t1, must
     store_counter
     jal eet_question
     recover_counter
 
     # Decrement Sammich Byte
-    srl $t0, $t0, 1
+    addi $t0, $t0, -1
     la $t7, sam
-    sb $t0, ($t7)
+    sw $t0, ($t7)
     # Increment Hp
     lw $t0, health
     la $t1, health
@@ -503,10 +503,10 @@ eet_must_q:
     recover_counter # No need to return to original eat
 
     # Store Adjusted values
-    srl $t0, $t0, 1
-    sb $t0, sam
-    srl $t1, $t1, 1
-    sb $t1, must
+    addi $t0, $t0, -1
+    sw $t0, sam
+    addi $t1, $t1, -1
+    sw $t1, must
     
     # Adjust HP
     lw $t0, health
@@ -527,16 +527,16 @@ sammich_check:
     jr $ra
 
 sammich_found1: # Attempt to pickup
-    lb $t0, sam
-    li $t1, 6
+    lw $t0, sam
+    li $t1, 3
     bgt $t0, $t1, sammich_found3
     b sammich_found2
 
 sammich_found2: # Attempt Successful
     print (sammich_success)
-    sll $t0, $t0, 1
+    addi $t0, $t0, 1
     la $t3, sam
-    sb $t0, ($t3)
+    sw $t0, ($t3)
     li $t2, 5
     remove ($t2) # Picked up the sammich
     jr $ra
@@ -551,15 +551,15 @@ mustard_check:
     jr $ra
 
 mustard_found1: # Attempt to pickup
-    lb $t0, must
+    lw $t0, must
     bgtz $t0, mustard_found3
     b mustard_found2
 
 mustard_found2: # Attemp Successful
     print (mustard_success)
-    sll $t0, $t0, 4
+    addi $t0, $t0, 4
     la $t3, must
-    sb $t0, ($t3)
+    sw $t0, ($t3)
     li $t2, 7
     remove ($t2)
     jr $ra
@@ -585,7 +585,9 @@ decrement:
     jr $ra
 
 move_creatures:
-    j prompt_loop
+    jr $ra
+
+
 ## Math out the index
 #div $a0,  $t2 # x
 #mfhi $t4 # Store x
