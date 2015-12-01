@@ -24,6 +24,8 @@ nline: .asciiz "\n"
 prompt: .asciiz "->> "
 right: .asciiz "d"
 sam: .space 1 # Sammich byte
+sammich_success: .asciiz "You've acquired a sammich!\nRestores 2 HP upon consumption\n"
+sammich_failed: .asciiz "You've discovered a sammich!\nYou are holding four already!\nNo more 4 you!\n"
 setup_1: .asciiz "Hello! Welcome to AssemblyAdventure!\nType h for [h]elp. The interpreter process four character commands at a time.\nAnymore than that will be ignored or worse, crunked up.\nFind the diamond and goodluck!\n"
 total: .word 0 # Total Moves
 up: .asciiz "r"
@@ -503,11 +505,12 @@ sammich_found2: # Attempt Successful
     sll $t0, $t0, 1
     la $t3, sam
     sb $t0, ($t3)
-    #
+    li $t2, 5
+    remove ($t2) # Picked up the sammich
     jr $ra
 
 sammich_found3: # Attempt Failed
-    print (failed_sammich)
+    print (sammich_failed)
     jr $ra
 
 mustard_check:
