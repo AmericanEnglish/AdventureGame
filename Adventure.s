@@ -121,6 +121,7 @@ init:
     li $t1, 51  # Max Creature Count
     jal creature_gen
     # Place Sammiches
+    la $s0, array
     li $s1, 0  # Sammich Layers Handled
     li $a1, 64 # Grid size in the layer
     li $a2, 8  # Layers
@@ -128,6 +129,7 @@ init:
     li $s2, 5  # Object Number
     jal sammich_controller
     # Place Mustards
+    la $s0, array
     li $a1, 512 # Array Max
     li $a2, 7   # Object Number
     li $t0, 2   # Mustards To Place
@@ -188,6 +190,7 @@ sammich_controller: # Adjusts Layer
     recover_counter
     
     beq $s1, $a2, return
+    la $s0, array
     b sammich_controller
 
 sammich_gen:
@@ -200,12 +203,12 @@ sammich_gen:
     li $v0, 4
     mult $a0, $v0 # Convert Index -> Bytes
     mflo $a0 # Index After Padding
-    add $a0, $s0, $a0
-    lw $t9, ($a0) # Extract Number
+    add $s0, $s0, $a0
+    lw $t9, ($s0) # Extract Number
     mult $t9, $s2 # Add A Sammich
     mflo $t9 # Some composite number that indicates Sammich added
-    add $a0, $s0, $a0
-    sw $t9, ($a0)
+    # add $s0, $s0, $a0
+    sw $t9, ($s0)
     addi $t0, $t0, 1
     beq $a3, $t0, return
     b sammich_gen
@@ -216,11 +219,11 @@ mustard_place:
     li $t2, 4 # Byte Padding
     mult $a0, $t2
     mflo $t2
-    add $t2. $t2, $s0 # Extract Value
+    add $t2, $t2, $s0 # Extract Value
     lw $a0, ($t2)
     mult $a0, $a2 # Some composite
     mflo $a0
-    sw $a0, ($t0)
+    sw $a0, ($s0)
     addi $t0, $t0, -1
     blez $t0, return
     b mustard_place
@@ -519,7 +522,7 @@ mustard_check:
     jr $ra
 
 mustard_found1: # Attempt to pickup
-
+    
 mustard_found2: # Attemp Successful
 
 mustard_found3: # Attemp Failed
