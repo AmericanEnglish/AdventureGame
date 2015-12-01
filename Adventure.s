@@ -2,7 +2,7 @@
 array: .space 2048 # 8 * 8 * 8 3-Dimensional Array (* 4 Bytes)
 backward: .asciiz "s"
 buffer: .space 6 # 4 input chars, a \n and the null terminator
-ded: .asciiz "You are dead. 100% so. Goodbye."
+ded: .asciiz "You are dead. 100% so. \n"
 dimx: .word 7
 dimy: .word 7
 dimz: .word 7
@@ -11,13 +11,14 @@ eat: .asciiz "e"
 forward: .asciiz "w"
 health: .word 10
 inval: .asciiz "Wat?\n"
+leave: .asciiz "Goodbye.\n"
 left: .asciiz "a"
-move1: .asciiz "FOWARD   !"
-move2: .asciiz "BACKWARD !"
-move3: .asciiz "LEFTWARD !"
-move4: .asciiz "RIGHTWARD!"
-move5: .asciiz "UPWARD   !"
-move6: .asciiz "DOWNWARD !"
+move1: .asciiz "FOWARD   !\n\n"
+move2: .asciiz "BACKWARD !\n\n"
+move3: .asciiz "LEFTWARD !\n\n"
+move4: .asciiz "RIGHTWARD!\n\n"
+move5: .asciiz "UPWARD   !\n\n"
+move6: .asciiz "DOWNWARD !\n\n"
 must: .space 1 # Mustard Byte
 nline: .asciiz "\n"
 prompt: .asciiz "->> "
@@ -238,6 +239,8 @@ exit:
     sub $a0, $s4, $s3
     li $v0, 1
     syscall
+    print (nline)
+    print (leave)
     # Exit
     li $v0, 10
     syscall
@@ -263,7 +266,8 @@ back:
     la $a1, y
     # Move
     addi $t1, $t1, -1
-    
+    print (move2)
+
     # Boundary Check
     store_counter
     bltzal $t1, adjust_lower_bounds
@@ -288,6 +292,7 @@ dwn:
     la $a1, z
     # Move
     addi $t1, $t1, -1
+    print (move6)
     
     # Boundary Check
     store_counter
@@ -313,7 +318,7 @@ lft:
     la $a1, x
     # Move
     addi $t1, $t1, -1
-    
+    print (move3)
     # Boundary Check
     store_counter
     bltzal $t1, adjust_lower_bounds
@@ -339,7 +344,7 @@ fwd:
     la $a1, y
     # Move
     addi $t1, $t1, 1
-    
+    print (move1)
     # Boundary Check
     store_counter
     jal upper_check
@@ -365,7 +370,7 @@ rght:
     la $a1, x
     # Move
     addi $t1, $t1, 1
-    
+    print (move4)
     # Boundary Check
     store_counter
     jal upper_check
@@ -391,7 +396,7 @@ rise:
     la $a1, z
     # Move
     addi $t1, $t1, 1
-    
+    print (move5)
     # Boundary Check
     store_counter
     jal upper_check
