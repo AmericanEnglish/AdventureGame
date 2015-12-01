@@ -89,6 +89,14 @@ z: .word 0
     mfhi $t0
 .END_MACRO
 
+# Only callable after a check_for
+.MACRO remove (%obj) # Removes and object from memory
+    lw $t9,  ($s0)
+    div $t9, %obj
+    mflo $t9
+    sw $t9, ($s0)
+.END_MACRO
+
 .text 
 init:
     # Print Setup Text
@@ -495,16 +503,23 @@ sammich_found2: # Attempt Successful
     sll $t0, $t0, 1
     la $t3, sam
     sb $t0, ($t3)
+    #
     jr $ra
-    
+
 sammich_found3: # Attempt Failed
     print (failed_sammich)
     jr $ra
 
 mustard_check:
     check_for (7)
-    beq $t0, $zero, mustard_found
+    beq $t0, $zero, mustard_found1
     jr $ra
+
+mustard_found1: # Attempt to pickup
+
+mustard_found2: # Attemp Successful
+
+mustard_found3: # Attemp Failed
 
 death:
     print (ded)
