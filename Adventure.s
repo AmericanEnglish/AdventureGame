@@ -41,7 +41,7 @@ setup_1: .asciiz "Hello! Welcome to AssemblyAdventure!\nType h for [h]elp. The i
 up: .asciiz "r"
 use: .asciiz "Use mustard? (y/n): "
 quit: .asciiz "q"
-vic: .asciiz "You win! I guess . . . whooooo . . .\n"
+vic: .asciiz "Thats a . . . diamond?! You win! I guess . . . whooooo . . .\n"
 totalm: .asciiz "Total Moves: "
 break: "s"
 break_success: "Youve slept a little. HP +1.\n"
@@ -315,10 +315,14 @@ analyze:
     lbu $t1, ($t1)
     beq $t1, $t0, eet
 
+    la $t1, break
+    lbu $t1, ($t1)
+    beq $t1, $t0, nap_time
+
     la $t1, nline
     lbu $t1, ($t1)
     beq $t1, $t0, return
-    beq $zero, $t0, return
+    beq $zero, $t0, invalid
 
     jr $ra
 
@@ -668,7 +672,7 @@ creature_new_success:
     sw $t2, ($t5)
     jr $ra
 
-
+nap_time:
 ## Math out the index
 #div $a0,  $t2 # x
 #mfhi $t4 # Store x
