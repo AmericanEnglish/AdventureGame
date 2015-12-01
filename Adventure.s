@@ -41,7 +41,7 @@ up: .asciiz "r"
 use: .asciiz "Use mustard? (y/n): "
 quit: .asciiz "q"
 vic: .asciiz "You win! I guess . . . whooooo . . .\n"
-
+totalm: .asciiz "Total Moves: "
 # Creature:  3
 # Diamond:  11
 # Empty:     1
@@ -124,6 +124,11 @@ vic: .asciiz "You win! I guess . . . whooooo . . .\n"
     store_counter
     jal decrement
     recover_counter
+
+    la $s5, total
+    lw $t6, ($s5)
+    addi $t6, $t6, 1
+    sw $t6, ($s5)
 .END_MACRO
 
 .text 
@@ -327,6 +332,11 @@ exit:
     syscall
     print (nline)
     print (leave)
+    print (totalm)
+    li $v0, 1
+    lw $a0, total
+    syscall
+    print (nline)
     # Exit
     li $v0, 10
     syscall
@@ -579,6 +589,10 @@ mustard_found3: # Attemp Failed
 
 death:
     print (ded)
+    la $t4, total
+    lw $t3, total
+    addi $t3, $t3, 1
+    sw $t3, ($t4)
     j exit
     
 victory:
