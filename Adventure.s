@@ -1,4 +1,5 @@
 .data
+answer_y: .asciiz "y"
 array: .space 2048 # 8 * 8 * 8 3-Dimensional Array (* 4 Bytes)
 backward: .asciiz "s"
 buffer: .space 6 # 4 input chars, a \n and the null terminator
@@ -32,6 +33,7 @@ sammich_failed: .asciiz "You've discovered a sammich!\nYou are holding four alre
 setup_1: .asciiz "Hello! Welcome to AssemblyAdventure!\nType h for [h]elp. The interpreter process four character commands at a time.\nAnymore than that will be ignored or worse, crunked up.\nFind the diamond and goodluck!\n"
 total: .word 0 # Total Moves
 up: .asciiz "r"
+use: .asciiz "Use mustard? (y/n): "
 quit: .asciiz "q"
 vic: .asciiz "You win! I guess . . . whooooo . . .\n"
 x: .word 0
@@ -355,7 +357,7 @@ back:
     bltzal $t1, adjust_lower_bounds
     recover_counter
     
-    # JAL to Win Check
+    # Easy Check
     check_all
 
     # Move Creatures
@@ -465,13 +467,58 @@ eet:
     # Check Sammich Byte
     lb $t0, sam
     blez $t0, eet_failed
+    
     # Check Mustard Byte
+    lb $t1, must
+    store_counter
+    jal eet_question
+    recover_counter
+
     # Decrement Sammich Byte
+    srl $t0, $t0, 1
+    la $t7, sam
+    sb $t0, ($t7)
     # Increment Hp
+    lw $t0, health
+    la $t1, health
+    addi $t0, $t0,
     # Move creature
+    j move_creatures
+
+eet_question:
+    bgtz $t1, eet_must_q
+    jr $ra
+
 eet_failed:
     print (empty_sammich)
     jr $ra
+
+eet_must_q:
+    print (use)
+    li $v0, 12 # Read the y or the n
+    syscall
+    print (nline)
+    lbu $t3, answer_y
+    bne $t3, $v0, return
+    recover_counter # No need to return to original eat
+
+    # Store Adjusted values
+    srl $t0, $t0, 1
+    sb $t0, sam
+    srl $t1, $t1, 1
+    sb $t1, must
+    
+    # Adjust HP
+    lw $t0, health
+    la $t1, health
+    addi $t0, $t0, 6
+    sw $t0, ($t1)
+    jr $ra
+
+
+
+
+
 win:
     check_for (11)
     beq $t0, $zero, victory
