@@ -43,9 +43,9 @@ use: .asciiz "Use mustard? (y/n): "
 quit: .asciiz "q"
 vic: .asciiz "Thats a . . . diamond?! You win! I guess . . . whooooo . . .\n"
 totalm: .asciiz "Total Moves: "
-break: "s"
+break: "b"
 break_success: "Youve slept a little. HP +1.\n"
-break_failure: "You've slept on a porcupine! IDIOT! HP -2.\n"
+break_failure: "You've slept on a porcupine! IDIOT! HP -3.\n"
 # Creature:  3
 # Diamond:  11
 # Empty:     1
@@ -673,6 +673,27 @@ creature_new_success:
     jr $ra
 
 nap_time:
+    check_for(3)
+    blez $t0, nap_time_failure # You were pricked!
+    print (break_success)
+    lw $t0, health
+    la $t1, health
+    addi $t0, $t0, 1
+    sw $t0, ($t1)
+    j move_creatures
+
+nap_time_failure:
+    li $t1, 3
+    remove ($t1)
+    la $t1, health
+    lw $t0, health
+    addi $t0, $t0, -2
+    sw $t0, ($t1)
+    print (break_failure)
+    check_all
+    j move_creatures
+
+
 ## Math out the index
 #div $a0,  $t2 # x
 #mfhi $t4 # Store x
