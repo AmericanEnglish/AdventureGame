@@ -8,4 +8,5 @@ Organization &amp; Assembly Adventure Game
  - 1 Forward
  - 2 Backward
  - Adjust XYZ accordingly
-2. Add a lot more flavor text i guess
+2. Add sleep function
+3. Add a lot more flavor text i guess
