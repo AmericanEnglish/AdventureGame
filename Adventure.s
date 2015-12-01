@@ -340,6 +340,14 @@ back:
     jal win
     recover_counter
     
+    store_counter
+    jal sammich_check
+    recover_counter
+
+    store_counter
+    jal mustard_check
+    recover_counter
+    
     # Decrement HP
     store_counter
     jal decrement
@@ -365,6 +373,14 @@ dwn:
     # JAL to Win Check
     store_counter
     jal win
+    recover_counter
+    
+    store_counter
+    jal sammich_check
+    recover_counter
+
+    store_counter
+    jal mustard_check
     recover_counter
     
     # Decrement HP
@@ -393,6 +409,14 @@ lft:
     jal win
     recover_counter
     
+    store_counter
+    jal sammich_check
+    recover_counter
+
+    store_counter
+    jal mustard_check
+    recover_counter
+    
     # Decrement HP
     store_counter
     jal decrement
@@ -414,10 +438,19 @@ fwd:
     store_counter
     jal upper_check
     recover_counter
+
     
     # JAL to Win Check
     store_counter
     jal win
+    recover_counter
+    
+    store_counter
+    jal sammich_check
+    recover_counter
+
+    store_counter
+    jal mustard_check
     recover_counter
     
     # Decrement HP
@@ -440,6 +473,14 @@ rght:
     # Boundary Check
     store_counter
     jal upper_check
+    recover_counter
+    
+    store_counter
+    jal sammich_check
+    recover_counter
+
+    store_counter
+    jal mustard_check
     recover_counter
     
     # JAL to Win Check
@@ -467,6 +508,14 @@ rise:
     # Boundary Check
     store_counter
     jal upper_check
+    recover_counter
+    
+    store_counter
+    jal sammich_check
+    recover_counter
+
+    store_counter
+    jal mustard_check
     recover_counter
     
     # JAL to Win Check
