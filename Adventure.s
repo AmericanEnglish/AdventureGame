@@ -90,6 +90,9 @@ init:
     add $s4, $a1, $zero  # Move the lower 32 bits of time
     j prompt_loop
 
+return:
+    jr $ra
+
 array_init: # Generates an array of 1's
     sw $a1, ($s0)
     addi $t0, $t0, 1
@@ -422,7 +425,7 @@ win:
     lw $t8, ($s0) # Load in index data
     li $v0, 11 # Diamond Number
     div $t8, $v0 # If 11 is a factor remainder is 0
-    mflo $t0
+    mfhi $t0
     beq $t0, $zero, victory
     jr $ra
 
