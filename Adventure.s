@@ -516,9 +516,6 @@ eet_must_q:
     jr $ra
 
 
-
-
-
 win:
     check_for (11)
     beq $t0, $zero, victory
