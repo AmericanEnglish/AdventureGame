@@ -260,15 +260,16 @@ back:
     bltzal $t1, adjust_lower_bounds
     recover_counter
     
+    # JAL to Win Check
+    store_counter
+    jal win
+    recover_counter
+    
     # Decrement HP
     store_counter
     jal decrement
     recover_counter
     
-    # JAL to Win Check
-    store_counter
-    jal win
-    recover_counter
     # Move Creatures
     j move_creatures
 
@@ -284,15 +285,16 @@ dwn:
     bltzal $t1, adjust_lower_bounds
     recover_counter
     
-    # Decrement HP
-    store_counter
-    jal decrement
-    recover_counter
-    
     # JAL to Win Check
     store_counter
     jal win
     recover_counter
+    
+    # Decrement HP
+    store_counter
+    jal decrement
+    recover_counter
+
     # Move Creatures
     j move_creatures
 
@@ -308,15 +310,16 @@ lft:
     bltzal $t1, adjust_lower_bounds
     recover_counter
     
-    # Decrement HP
-    store_counter
-    jal decrement
-    recover_counter
-    
     # JAL to Win Check
     store_counter
     jal win
     recover_counter
+    
+    # Decrement HP
+    store_counter
+    jal decrement
+    recover_counter
+
     # Move Creatures
     j move_creatures
 
@@ -333,15 +336,16 @@ fwd:
     jal upper_check
     recover_counter
     
-    # Decrement HP
-    store_counter
-    jal decrement
-    recover_counter
-    
     # JAL to Win Check
     store_counter
     jal win
     recover_counter
+    
+    # Decrement HP
+    store_counter
+    jal decrement
+    recover_counter
+
     # Move Creatures
     j move_creatures
 
@@ -358,15 +362,16 @@ rght:
     jal upper_check
     recover_counter
     
-    # Decrement HP
-    store_counter
-    jal decrement
-    recover_counter
-    
     # JAL to Win Check
     store_counter
     jal win
     recover_counter
+    
+    # Decrement HP
+    store_counter
+    jal decrement
+    recover_counter
+
     # Move Creatures
     j move_creatures
 
@@ -383,15 +388,16 @@ rise:
     jal upper_check
     recover_counter
     
+    # JAL to Win Check
+    store_counter
+    jal win
+    recover_counter
+    
     # Decrement HP
     store_counter
     jal decrement
     recover_counter
     
-    # JAL to Win Check
-    store_counter
-    jal win
-    recover_counter
     # Move Creatures
     j move_creatures
 
