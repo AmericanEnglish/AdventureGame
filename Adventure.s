@@ -8,6 +8,7 @@ dimy: .word 7
 dimz: .word 7
 down: .asciiz "f"
 eat: .asciiz "e"
+empty_sammich: .asciiz "A las, your hands, do not qualify as a sammich.\nFirst find a sammich if you're hungry.\nThey're everywhere."
 forward: .asciiz "w"
 health: .word 10
 inval: .asciiz "Wat?\n"
@@ -99,6 +100,25 @@ z: .word 0
     div $t9, %obj
     mflo $t9
     sw $t9, ($s0)
+.END_MACRO
+
+.MACRO
+    store_counter
+    jal win
+    recover_counter
+    
+    store_counter
+    jal sammich_check
+    recover_counter
+
+    store_counter
+    jal mustard_check
+    recover_counter
+    
+    # Decrement HP
+    store_counter
+    jal decrement
+    recover_counter
 .END_MACRO
 
 .text 
@@ -336,22 +356,7 @@ back:
     recover_counter
     
     # JAL to Win Check
-    store_counter
-    jal win
-    recover_counter
-    
-    store_counter
-    jal sammich_check
-    recover_counter
-
-    store_counter
-    jal mustard_check
-    recover_counter
-    
-    # Decrement HP
-    store_counter
-    jal decrement
-    recover_counter
+    check_all
 
     # Move Creatures
     j move_creatures
@@ -370,23 +375,8 @@ dwn:
     bltzal $t1, adjust_lower_bounds
     recover_counter
     
-    # JAL to Win Check
-    store_counter
-    jal win
-    recover_counter
-    
-    store_counter
-    jal sammich_check
-    recover_counter
-
-    store_counter
-    jal mustard_check
-    recover_counter
-    
-    # Decrement HP
-    store_counter
-    jal decrement
-    recover_counter
+    # Easy Check
+    check_all
 
     # Move Creatures
     j move_creatures
@@ -404,23 +394,8 @@ lft:
     bltzal $t1, adjust_lower_bounds
     recover_counter
     
-    # JAL to Win Check
-    store_counter
-    jal win
-    recover_counter
-    
-    store_counter
-    jal sammich_check
-    recover_counter
-
-    store_counter
-    jal mustard_check
-    recover_counter
-    
-    # Decrement HP
-    store_counter
-    jal decrement
-    recover_counter
+    # Easy Check
+    check_all
 
     # Move Creatures
     j move_creatures
@@ -440,23 +415,8 @@ fwd:
     recover_counter
 
     
-    # JAL to Win Check
-    store_counter
-    jal win
-    recover_counter
-    
-    store_counter
-    jal sammich_check
-    recover_counter
-
-    store_counter
-    jal mustard_check
-    recover_counter
-    
-    # Decrement HP
-    store_counter
-    jal decrement
-    recover_counter
+    # Easy Check
+    check_all
 
     # Move Creatures
     j move_creatures
@@ -475,23 +435,8 @@ rght:
     jal upper_check
     recover_counter
     
-    store_counter
-    jal sammich_check
-    recover_counter
-
-    store_counter
-    jal mustard_check
-    recover_counter
-    
-    # JAL to Win Check
-    store_counter
-    jal win
-    recover_counter
-    
-    # Decrement HP
-    store_counter
-    jal decrement
-    recover_counter
+    # Easy Check
+    check_all
 
     # Move Creatures
     j move_creatures
@@ -510,34 +455,23 @@ rise:
     jal upper_check
     recover_counter
     
-    store_counter
-    jal sammich_check
-    recover_counter
-
-    store_counter
-    jal mustard_check
-    recover_counter
-    
-    # JAL to Win Check
-    store_counter
-    jal win
-    recover_counter
-    
-    # Decrement HP
-    store_counter
-    jal decrement
-    recover_counter
+    # Easy Check
+    check_all
     
     # Move Creatures
     j move_creatures
 
 eet:
     # Check Sammich Byte
+    lb $t0, sam
+    blez $t0, eet_failed
     # Check Mustard Byte
     # Decrement Sammich Byte
     # Increment Hp
     # Move creature
-
+eet_failed:
+    print (empty_sammich)
+    jr $ra
 win:
     check_for (11)
     beq $t0, $zero, victory
