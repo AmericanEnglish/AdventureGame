@@ -1,4 +1,5 @@
 .data
+.align 4
 array: .space 2048 # 8 * 8 * 8 3-Dimensional Array (* 4 Bytes)
 buffer: .space 6 # 4 input chars, a \n and the null terminator
 dimx: .word 7
@@ -42,6 +43,7 @@ use: .asciiz "Use mustard? (y/n): "
 quit: .asciiz "q"
 vic: .asciiz "You win! I guess . . . whooooo . . .\n"
 totalm: .asciiz "Total Moves: "
+break: "s"
 # Creature:  3
 # Diamond:  11
 # Empty:     1
@@ -64,11 +66,12 @@ totalm: .asciiz "Total Moves: "
     la $a0, %str
     li $v0, 4
     syscall
+    li $a0, 0
 .END_MACRO
 
 .MACRO reset_buffer
     # Reset buffer space
-    la $s0, buffer
+    la $s7, buffer
     sw $zero, ($s7)
     sb $zero, 4($s7)
 .END_MACRO
@@ -275,6 +278,7 @@ prompt_loop:
 
 # Runs the show
 analyze:
+    li $s2, 511 # For the creature counter
     lbu $t0, ($s7) # Starts reading the string
     
     la $t1, quit
@@ -314,7 +318,7 @@ analyze:
     beq $t1, $t0, return
     beq $zero, $t0, return
 
-    b invalid
+    jr $ra
 
 invalid:
     la $a0, inval
@@ -581,10 +585,12 @@ mustard_found2: # Attemp Successful
     sw $t0, ($t3)
     li $t2, 7
     remove ($t2)
+    print (nline)
     jr $ra
 
 mustard_found3: # Attemp Failed
     print (mustard_failed)
+    print (nline)
     jr $ra
 
 death:
@@ -608,6 +614,56 @@ decrement:
     jr $ra
 
 move_creatures:
+    la $a3, array
+    store_counter
+    jal creature_loop
+    recover_counter
+    addi $s7, $s7, 1
+    b analyze
+
+creature_loop:
+    lw $t1, ($a3)
+    li $t2, 3
+    div $t1, $t2
+    mfhi $t5
+    store_counter
+    jal creature_check
+    recover_counter
+    addi $a3, $a3, 4
+    addi $s2, $s2, -1
+    blez $s2, return
+    b creature_loop
+
+creature_check:
+    blez $t5, creature_check_success
+    jr $ra
+
+creature_check_success:
+    mflo $t5
+    sw $t5, ($a3)
+    li $a1, 512
+    li $v0, 42
+    syscall
+    # Just Teleport them, WAAAY FUNNIER
+    li $t5, 4 # Byte Padding
+    mult $a0, $t5
+    mflo $a0
+    la $t3, array
+    add $t5, $t5, $t3 # New index
+    lw $t3, ($t5)
+    div $t3, $t2
+    mfhi $t3
+    blez $t3, creature_new_success
+    mult $t3, $t2
+    mflo $t2
+    sw $t2, ($t5)
+    jr $ra
+
+creature_new_success:
+    mflo $t3
+    mult $t3, $t2
+    mflo $t2
+    sw $t2, ($t5)
     jr $ra
 
 
