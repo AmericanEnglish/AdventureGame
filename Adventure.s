@@ -102,7 +102,7 @@ z: .word 0
     sw $t9, ($s0)
 .END_MACRO
 
-.MACRO
+.MACRO check_all
     store_counter
     jal win
     recover_counter
