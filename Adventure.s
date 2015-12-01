@@ -1,6 +1,6 @@
 .data
-answer_y: .asciiz "y"
 array: .space 2048 # 8 * 8 * 8 3-Dimensional Array (* 4 Bytes)
+answer_y: .asciiz "y"
 backward: .asciiz "s"
 buffer: .space 6 # 4 input chars, a \n and the null terminator
 ded: .asciiz "You are dead. 100% so. \n"
@@ -481,7 +481,7 @@ eet:
     # Increment Hp
     lw $t0, health
     la $t1, health
-    addi $t0, $t0,
+    addi $t0, $t0, 2
     # Move creature
     j move_creatures
 
