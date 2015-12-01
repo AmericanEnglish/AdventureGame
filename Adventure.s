@@ -10,14 +10,14 @@ down: .asciiz "f"
 eat: .asciiz "e"
 forward: .asciiz "w"
 health: .word 10
-invalid: .asciiz "Wat?\n"
+inval: .asciiz "Wat?\n"
 left: .asciiz "a"
 must: .space 1 # Mustard Byte
 nline: .asciiz "\n"
 prompt: .asciiz "->> "
 right: .asciiz "d"
 sam: .space 1 # Sammich byte
-setup_1: .asciiz "Hello! Welcome to AssemblyAdventure!\nType h for [h]elp. The interpreter process four character commands at a time.\nAnymore than that will be ignored or worse, crunked up.\nFind the diamond and goodluck!"
+setup_1: .asciiz "Hello! Welcome to AssemblyAdventure!\nType h for [h]elp. The interpreter process four character commands at a time.\nAnymore than that will be ignored or worse, crunked up.\nFind the diamond and goodluck!\n"
 total: .word 0 # Total Moves
 up: .asciiz "r"
 quit: .asciiz "q"
@@ -31,20 +31,19 @@ z: .word 0
 # Mustard:   7
 # Sammich:   5
 
-.text
 
-.marco store_counter
+.MACRO store_counter
     addi $sp, $sp, -4
     sw $ra, ($sp)  
 .end_macro
 
 
-.marco recover_counter
-    lw $ra, $sp
+.MACRO recover_counter
+    lw $ra, ($sp)
     addi $sp, $sp, 4
 .end_macro
 
-
+.text 
 init:
     # Print Setup Text
     la $a0, setup_1
@@ -82,16 +81,17 @@ init:
     mult $a0, $a1
     mflo $a0
     li $a2, 11
-    sw $a2, $a0($s0)
+    add $s0, $s0, $a0
+    sw $a2, ($s0)
 
     # Log Start time
     li $v0, 30
     syscall
-    addi $s4, $a1, $zero  # Move the lower 32 bits of time
-    j prompt
+    add $s4, $a1, $zero  # Move the lower 32 bits of time
+    j prompt_loop
 
 array_init: # Generates an array of 1's
-    sw $a1, $s0
+    sw $a1, ($s0)
     addi $t0, $t0, 1
     addi $s0, $s0, 4
     bgt $t0, $a0, return
@@ -108,7 +108,8 @@ creature_gen:
     mflo $a0
     
     # Store The Creature
-    sw $a3, $a0($s0)
+    add $s0, $s0, $a0
+    sw $a3, ($s0)
     addi $t0, $t0, 1
     
     beq $t0, $t1, return
@@ -133,14 +134,16 @@ sammich_gen:
     # 64 * Layer + Location
     mult $a1,  $s1
     mflo $t9
-    addi $a0, $a0, $t9
+    add $a0, $a0, $t9
     li $v0, 4
     mult $a0, $v0 # Convert Index -> Bytes
     mflo $a0 # Index After Padding
-    lw $t9, $a0($s0) # Extract Number
+    add $s0, $s0, $a0
+    lw $t9, ($s0) # Extract Number
     mult $t9, $s2 # Add A Sammich
     mflo $t9 # Some composite number that indicates Sammich added
-    sw $t9, $a0($s0)
+    add $s0, $s0, $a0
+    sw $t9, ($s0)
     addi $t0, $t0, 1
     beq $a3, $t0, return
     b sammich_gen
@@ -148,75 +151,72 @@ sammich_gen:
 
 
 # Game Starts
-prompt:
+prompt_loop:
     la $a0, prompt # Gather String
     li $v0, 4
     syscall
     la $a0, buffer
     li $a1, 5
     li $v0, 8 # num for read string
+    syscall
     add $s0, $a0, $zero # Move address
     jal analyze
     li $a1, 0
     
     # Reset buffer space
     la $s0, buffer
-    sw $zero, $s0
-    sb $zero, $s0(4)
-    b prompt
-
-exit:
-    li $v0, 10
-    syscall
+    sw $zero, ($s0)
+    sb $zero, 4($s0)
+    b prompt_loop
 
 return:
-    j $ra
+    jr $ra
 
 # Runs the show
 analyze:
-    lbu $t0, $s0 # Starts reading the string
+    lbu $t0, ($s0) # Starts reading the string
     
     la $t1, quit
-    lbu $t1, $t1
+    lbu $t1, ($t1)
     beq $t0, $t1, exit
     
     la $t1, backward
-    lbu $t1, $t1
+    lbu $t1, ($t1)
     beq $t1, $t0, back
     
     la $t1, down
-    lbu $t1, $t1
+    lbu $t1, ($t1)
     beq $t1, $t0, dwn
     
     la $t1, forward
-    lbu $t1, $t1
+    lbu $t1, ($t1)
     beq $t1, $t0, fwd
     
     la $t1, left
-    lbu $t1, $t1
+    lbu $t1, ($t1)
     beq $t1, $t0, lft
 
     la $t1, right
-    lbu $t1, $t1
+    lbu $t1, ($t1)
     beq $t1, $t0, rght
 
     la $t1, up
-    lbu $t1, $t1
+    lbu $t1, ($t1)
     beq $t1, $t0, rise
 
     la $t1, eat
-    lbu $t1, $t1
+    lbu $t1, ($t1)
     beq $t1, $t0, eet
 
     la $t1, nline
-    lbu $t1, $t1
+    lbu $t1, ($t1)
     beq $t1, $t0, return
     beq $zero, $t0, return
 
     b invalid
 
 invalid:
-    la $a0, invalid
+    la $a0, inval
     li $v0, 4
     syscall
     j return
@@ -225,16 +225,21 @@ exit:
     # Log Death time
     li $v0, 30
     syscall
-    addi $s3, $a1, $zero  # Move the lower 32 bits of time
+    add $s3, $a1, $zero  # Move the lower 32 bits of time
     sub $a0, $s4, $s3
     li $v0, 1
     syscall
     # Exit
     li $v0, 10
     syscall
+
+upper_check:
+    bgt $t1, $t0, adjust_upper_bounds
+    j return
+
 adjust_upper_bounds:
     li $a0, 0
-    sw $a0, $a1
+    sw $a0, ($a1)
     j return
 
 adjust_lower_bounds:
@@ -325,8 +330,7 @@ fwd:
     
     # Boundary Check
     store_counter
-    addi $ra, $pc, 8 # Link
-    bgt $t1, $t0, adjust_upper_bounds
+    jal upper_check
     recover_counter
     
     # Decrement HP
@@ -351,8 +355,7 @@ rght:
     
     # Boundary Check
     store_counter
-    addi $ra, $pc, 8 # Link
-    bgt $t1, $t0, adjust_upper_bounds
+    jal upper_check
     recover_counter
     
     # Decrement HP
@@ -377,8 +380,7 @@ rise:
     
     # Boundary Check
     store_counter
-    addi $ra, $pc, 8 # Link
-    bgt $t1, $t0, adjust_upper_bounds
+    jal upper_check
     recover_counter
     
     # Decrement HP
@@ -401,21 +403,25 @@ eet:
     # Move creature
 
 win:
-    lw $t0, z # Prep Z
+    la $t9, z # Prep Z
+    lw $t0, ($t9) 
     li $t3, 64
     mult $t0, $t3
     mflo $t0
-    lw $t1, y # Prep Y
+    la $t9, y # Prep Y
+    lw $t1, ($t9)
     li $t3, 8
     mult $t1, $t3
     mflo $t0
-    lw $t2, x # No Prep X
+    la $t9, x # No Prep for X
+    lw $t2, ($t9) 
     add $t0, $t0, $t1
     add $t0, $t0, $t2
     li $t3, 4 # Byte Padding
     mult $t0, $t3
-    la $s0, array
-    lw $t8, $t3($s0) # Load in index data
+    la $s0, array # Read Array
+    add $s0, $t3, $s0
+    lw $t8, ($s0) # Load in index data
     li $v0, 11 # Diamond Number
     div $t8, $v0 # If 11 is a factor remainder is 0
     mflo $t0
