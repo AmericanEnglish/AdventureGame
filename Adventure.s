@@ -20,6 +20,8 @@ move4: .asciiz "RIGHTWARD!\n"
 move5: .asciiz "UPWARD   !\n"
 move6: .asciiz "DOWNWARD !\n"
 must: .space 1 # Mustard Byte
+mustard_success: .asciiz "You've acquired mustard!\nEnjoy the . . . tasty? . . . flavor on your sammichs\nfor triple the sammich goodness."
+mustard_failed: .asciiz "You've discovered mustard!\nAlthough you still have some left. Waste less, and leave it till\nyou finish this one."
 nline: .asciiz "\n"
 prompt: .asciiz "->> "
 right: .asciiz "d"
@@ -522,10 +524,22 @@ mustard_check:
     jr $ra
 
 mustard_found1: # Attempt to pickup
-    
+    lb $t0, must
+    bgtz $t0, mustard_found3
+    b mustard_found2
+
 mustard_found2: # Attemp Successful
+    print (mustard_success)
+    srl $t0, $t0, 4
+    la $t3, must
+    sb $t0, ($t3)
+    li $t2, 7
+    remove ($t2)
+    jr $ra
 
 mustard_found3: # Attemp Failed
+    print (mustard_failed)
+    jr $ra
 
 death:
     print (ded)
