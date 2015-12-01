@@ -12,6 +12,12 @@ forward: .asciiz "w"
 health: .word 10
 inval: .asciiz "Wat?\n"
 left: .asciiz "a"
+move1: .asciiz "FOWARD   !"
+move2: .asciiz "BACKWARD !"
+move3: .asciiz "LEFTWARD !"
+move4: .asciiz "RIGHTWARD!"
+move5: .asciiz "UPWARD   !"
+move6: .asciiz "DOWNWARD !"
 must: .space 1 # Mustard Byte
 nline: .asciiz "\n"
 prompt: .asciiz "->> "
@@ -53,9 +59,7 @@ z: .word 0
 .text 
 init:
     # Print Setup Text
-    la $a0, setup_1
-    li $v0, 4
-    syscall
+    print (setup_1)
 
     # Setup Game Array
     # Populate "Empty" Array
@@ -162,9 +166,7 @@ sammich_gen:
 
 # Game Starts
 prompt_loop:
-    la $a0, prompt # Gather String
-    li $v0, 4
-    syscall
+    print (prompt)
     la $a0, buffer
     li $a1, 5
     li $v0, 8 # num for read string
@@ -443,15 +445,11 @@ win:
     jr $ra
 
 death:
-    la $a0, ded
-    li $v0, 4
-    syscall
+    print (ded)
     j exit
     
 victory:
-    la $a0, vic
-    li $v0, 4
-    syscall
+    print (vic)
     j exit
 
 decrement:
