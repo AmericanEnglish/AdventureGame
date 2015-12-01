@@ -513,7 +513,7 @@ eet_must_q:
     la $t1, health
     addi $t0, $t0, 6
     sw $t0, ($t1)
-    jr $ra
+    j move_creatures
 
 
 win:
