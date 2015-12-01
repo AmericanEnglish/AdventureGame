@@ -44,6 +44,8 @@ quit: .asciiz "q"
 vic: .asciiz "You win! I guess . . . whooooo . . .\n"
 totalm: .asciiz "Total Moves: "
 break: "s"
+break_success: "Youve slept a little. HP +1.\n"
+break_failure: "You've slept on a porcupine! IDIOT! HP -2.\n"
 # Creature:  3
 # Diamond:  11
 # Empty:     1
