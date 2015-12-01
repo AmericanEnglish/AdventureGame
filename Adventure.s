@@ -21,6 +21,7 @@ setup_1: .asciiz "Hello! Welcome to AssemblyAdventure!\nType h for [h]elp. The i
 total: .word 0 # Total Moves
 up: .asciiz "r"
 quit: .asciiz "q"
+vic: .asciiz "You win! I guess . . . whooooo . . .\n"
 x: .word 0
 y: .word 0
 z: .word 0
@@ -221,6 +222,14 @@ invalid:
     j return
 
 exit:
+    # Log Death time
+    li $v0, 30
+    syscall
+    addi $s3, $a1, $zero  # Move the lower 32 bits of time
+    sub $a0, $s4, $s3
+    li $v0, 1
+    syscall
+    # Exit
     li $v0, 10
     syscall
 adjust_upper_bounds:
@@ -392,13 +401,39 @@ eet:
     # Move creature
 
 win:
+    lw $t0, z # Prep Z
+    li $t3, 64
+    mult $t0, $t3
+    mflo $t0
+    lw $t1, y # Prep Y
+    li $t3, 8
+    mult $t1, $t3
+    mflo $t0
+    lw $t2, x # No Prep X
+    add $t0, $t0, $t1
+    add $t0, $t0, $t2
+    li $t3, 4 # Byte Padding
+    mult $t0, $t3
+    la $s0, array
+    lw $t8, $t3($s0) # Load in index data
+    li $v0, 11 # Diamond Number
+    div $t8, $v0 # If 11 is a factor remainder is 0
+    mflo $t0
+    beq $t0, $zero, victory
+    j return
 
 death:
     la $a0, ded
     li $v0, 4
     syscall
-    b exit
+    j exit
     
+victory:
+    la $a0, vic
+    li $v0, 4
+    syscall
+    j exit
+
 decrement:
     la $a0, health
     lw $a1, ($a0)
