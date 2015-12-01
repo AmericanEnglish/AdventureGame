@@ -2,6 +2,7 @@
 array: .space 2048 # 8 * 8 * 8 3-Dimensional Array (* 4 Bytes)
 backward: .asciiz "s"
 buffer: .space 6 # 4 input chars, a \n and the null terminator
+ded: .asciiz "You are dead. 100% so. Goodbye."
 dimx: .word 7
 dimy: .word 7
 dimz: .word 7
@@ -393,7 +394,11 @@ eet:
 win:
 
 death:
-
+    la $a0, ded
+    li $v0, 4
+    syscall
+    b exit
+    
 decrement:
     la $a0, health
     lw $a1, ($a0)
