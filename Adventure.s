@@ -512,11 +512,17 @@ eet_failed:
 
 eet_must_q:
     print (use)
-    li $v0, 12 # Read the y or the n
+    reset_buffer
+    la $a0, buffer
+    li $a1, 2
+    li $v0, 8 # num for read string
     syscall
     print (nline)
-    lbu $t3, answer_y
-    bne $t3, $v0, return
+    la $t3, answer_y
+    lbu $t3, ($t3)
+    la $a3, buffer
+    lbu $a3, ($a3)
+    bne $t3, $a3, return
     recover_counter # No need to return to original eat
 
     # Store Adjusted values
