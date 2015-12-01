@@ -312,6 +312,7 @@ back:
     la $a1, y
     # Move
     addi $t1, $t1, -1
+    sw $t1, ($a1)
     print (move2)
 
     # Boundary Check
@@ -338,6 +339,7 @@ dwn:
     la $a1, z
     # Move
     addi $t1, $t1, -1
+    sw $t1, ($a1)
     print (move6)
     
     # Boundary Check
@@ -364,6 +366,7 @@ lft:
     la $a1, x
     # Move
     addi $t1, $t1, -1
+    sw $t1, ($a1)
     print (move3)
     # Boundary Check
     store_counter
@@ -390,6 +393,7 @@ fwd:
     la $a1, y
     # Move
     addi $t1, $t1, 1
+    sw $t1, ($a1)
     print (move1)
     # Boundary Check
     store_counter
@@ -416,6 +420,7 @@ rght:
     la $a1, x
     # Move
     addi $t1, $t1, 1
+    sw $t1, ($a1)
     print (move4)
     # Boundary Check
     store_counter
@@ -442,6 +447,7 @@ rise:
     la $a1, z
     # Move
     addi $t1, $t1, 1
+    sw $t1, ($a1)
     print (move5)
     # Boundary Check
     store_counter
