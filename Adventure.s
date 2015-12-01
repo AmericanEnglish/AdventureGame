@@ -56,6 +56,38 @@ z: .word 0
     syscall
 .END_MACRO
 
+.MACRO reset_buffer
+    # Reset buffer space
+    la $s0, buffer
+    sw $zero, ($s0)
+    sb $zero, 4($s0)
+.END_MACRO
+
+.MACRO check_for (%obj) # Moves remainder into $t0
+    la $t9, z # Prep Z
+    lw $t0, ($t9) 
+    li $t3, 64
+    mult $t0, $t3
+    mflo $t0
+    la $t9, y # Prep Y
+    lw $t1, ($t9)
+    li $t3, 8
+    mult $t1, $t3
+    mflo $t0
+    la $t9, x # No Prep for X
+    lw $t2, ($t9) 
+    add $t0, $t0, $t1 # Combine Indexes
+    add $t0, $t0, $t2
+    li $t3, 4 # Byte Padding
+    mult $t0, $t3
+    mflo $t3
+    la $s0, array # Read Array
+    add $s0, $s0, $t3
+    lw $t8, ($s0) # Load in index data
+    li $v0, %obj # Object Number
+    div $t8, $v0 # If %obj is a factor remainder is 0
+    mfhi $t0
+.END_MACRO
 
 .text 
 init:
@@ -172,19 +204,15 @@ prompt_loop:
     li $a1, 5
     li $v0, 8 # num for read string
     syscall
-    add $s0, $a0, $zero # Move address
+    add $s7, $a0, $zero # Move address
     jal analyze
     li $a1, 0
-    
-    # Reset buffer space
-    la $s0, buffer
-    sw $zero, ($s0)
-    sb $zero, 4($s0)
+    reset_buffer
     b prompt_loop
 
 # Runs the show
 analyze:
-    lbu $t0, ($s0) # Starts reading the string
+    lbu $t0, ($s7) # Starts reading the string
     
     la $t1, quit
     lbu $t1, ($t1)
@@ -423,31 +451,13 @@ eet:
     # Move creature
 
 win:
-    la $t9, z # Prep Z
-    lw $t0, ($t9) 
-    li $t3, 64
-    mult $t0, $t3
-    mflo $t0
-    la $t9, y # Prep Y
-    lw $t1, ($t9)
-    li $t3, 8
-    mult $t1, $t3
-    mflo $t0
-    la $t9, x # No Prep for X
-    lw $t2, ($t9) 
-    add $t0, $t0, $t1
-    add $t0, $t0, $t2
-    li $t3, 4 # Byte Padding
-    mult $t0, $t3
-    mflo $t3
-    la $s0, array # Read Array
-    add $s0, $s0, $t3
-    lw $t8, ($s0) # Load in index data
-    li $v0, 11 # Diamond Number
-    div $t8, $v0 # If 11 is a factor remainder is 0
-    mfhi $t0
+
     beq $t0, $zero, victory
     jr $ra
+
+sammich_check:
+mustard_check:
+
 
 death:
     print (ded)
