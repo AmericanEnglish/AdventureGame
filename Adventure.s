@@ -530,7 +530,7 @@ mustard_found1: # Attempt to pickup
 
 mustard_found2: # Attemp Successful
     print (mustard_success)
-    srl $t0, $t0, 4
+    sll $t0, $t0, 4
     la $t3, must
     sb $t0, ($t3)
     li $t2, 7
