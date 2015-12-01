@@ -416,8 +416,9 @@ win:
     add $t0, $t0, $t2
     li $t3, 4 # Byte Padding
     mult $t0, $t3
+    mflo $t3
     la $s0, array # Read Array
-    add $s0, $t3, $s0
+    add $s0, $s0, $t3
     lw $t8, ($s0) # Load in index data
     li $v0, 11 # Diamond Number
     div $t8, $v0 # If 11 is a factor remainder is 0
