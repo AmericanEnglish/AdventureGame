@@ -13,12 +13,12 @@ health: .word 10
 inval: .asciiz "Wat?\n"
 leave: .asciiz "Goodbye.\n"
 left: .asciiz "a"
-move1: .asciiz "FOWARD   !\n\n"
-move2: .asciiz "BACKWARD !\n\n"
-move3: .asciiz "LEFTWARD !\n\n"
-move4: .asciiz "RIGHTWARD!\n\n"
-move5: .asciiz "UPWARD   !\n\n"
-move6: .asciiz "DOWNWARD !\n\n"
+move1: .asciiz "FOWARD   !\n"
+move2: .asciiz "BACKWARD !\n"
+move3: .asciiz "LEFTWARD !\n"
+move4: .asciiz "RIGHTWARD!\n"
+move5: .asciiz "UPWARD   !\n"
+move6: .asciiz "DOWNWARD !\n"
 must: .space 1 # Mustard Byte
 nline: .asciiz "\n"
 prompt: .asciiz "->> "
@@ -117,6 +117,11 @@ init:
     li $a3, 6  # Sammiches to Be Placed
     li $s2, 5  # Object Number
     jal sammich_controller
+    # Place Mustards
+    li $a1, 512 # Array Max
+    li $a2, 7   # Object Number
+    li $t0, 2   # Mustards To Place
+    jal mustard_place
     # Place Diamond
     li $v0, 42
     li $a1, 512
@@ -155,8 +160,8 @@ creature_gen:
     mflo $a0
     
     # Store The Creature
-    add $s0, $s0, $a0
-    sw $a3, ($s0)
+    add $a0, $s0, $a0
+    sw $a3, ($a0)
     addi $t0, $t0, 1
     
     beq $t0, $t1, return
@@ -185,17 +190,30 @@ sammich_gen:
     li $v0, 4
     mult $a0, $v0 # Convert Index -> Bytes
     mflo $a0 # Index After Padding
-    add $s0, $s0, $a0
-    lw $t9, ($s0) # Extract Number
+    add $a0, $s0, $a0
+    lw $t9, ($a0) # Extract Number
     mult $t9, $s2 # Add A Sammich
     mflo $t9 # Some composite number that indicates Sammich added
-    add $s0, $s0, $a0
-    sw $t9, ($s0)
+    add $a0, $s0, $a0
+    sw $t9, ($a0)
     addi $t0, $t0, 1
     beq $a3, $t0, return
     b sammich_gen
 
-
+mustard_place:
+    li $v0, 42
+    syscall
+    li $t2, 4 # Byte Padding
+    mult $a0, $t2
+    mflo $t2
+    add $t2. $t2, $s0 # Extract Value
+    lw $a0, ($t2)
+    mult $a0, $a2 # Some composite
+    mflo $a0
+    sw $a0, ($t0)
+    addi $t0, $t0, -1
+    blez $t0, return
+    b mustard_place
 
 # Game Starts
 prompt_loop:
@@ -456,7 +474,9 @@ win:
     jr $ra
 
 sammich_check:
+    check_for (5)
 mustard_check:
+    check_for (7)
 
 
 death:
