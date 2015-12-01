@@ -1,5 +1,4 @@
 .data
-.align 4
 array: .space 2048 # 8 * 8 * 8 3-Dimensional Array (* 4 Bytes)
 buffer: .space 6 # 4 input chars, a \n and the null terminator
 dimx: .word 7
@@ -12,40 +11,47 @@ total: .word 0 # Total Moves
 x: .word 0
 y: .word 0
 z: .word 0
+.space 50
 answer_y: .asciiz "y"
 backward: .asciiz "s"
 ded: .asciiz "You are dead. 100% so. \n"
 down: .asciiz "f"
 eat: .asciiz "e"
-empty_sammich: .asciiz "Alas, your hands, do not qualify as a sammich.\nFirst find a sammich if youre hungry.\nTheyre everywhere.\n"
+empty_sammich: .asciiz "Alas, your hands, do not qualify as a sammich. \n First find a sammich if youre hungry. \n Theyre everywhere. \n "
 forward: .asciiz "w"
-inval: .asciiz "Wat?\n"
-leave: .asciiz "Goodbye.\n"
+inval: .asciiz "Wat? \n "
+leave: .asciiz "Goodbye. \n "
 left: .asciiz "a"
-move1: .asciiz "FOWARD   !\n"
-move2: .asciiz "BACKWARD !\n"
-move3: .asciiz "LEFTWARD !\n"
-move4: .asciiz "RIGHTWARD!\n"
-move5: .asciiz "UPWARD   !\n"
-move6: .asciiz "DOWNWARD !\n"
-mustard_success: .asciiz "Youve acquired mustard!\nEnjoy the . . . tasty? . . . flavor on your sammichs\nfor triple the sammich goodness."
-mustard_failed: .asciiz "Youve discovered mustard!\nAlthough you still have some left. Waste less, and leave it till\nyou finish this one."
-nline: .asciiz "\n"
+move1: .asciiz "FOWARD   ! \n "
+move2: .asciiz "BACKWARD ! \n "
+move3: .asciiz "LEFTWARD ! \n "
+move4: .asciiz "RIGHTWARD! \n "
+move5: .asciiz "UPWARD   ! \n "
+move6: .asciiz "DOWNWARD ! \n "
+mustard_success: .asciiz "Youve acquired mustard! \n Enjoy the . . . tasty? . . . flavor on your sammichs \n for triple the sammich goodness."
+mustard_failed: .asciiz "Youve discovered mustard! \n Although you still have some left. Waste less, and leave it till \n you finish this one."
+nline: .asciiz " \n"
 prompt: .asciiz "->> "
 right: .asciiz "d"
-consume: "Youve eaten the sammich and feel much less hungry. HP +2.\n"
-consume_must: "Slathering the mustard on you animal. HP +4.\n"
-sammich_success: .asciiz "Youve acquired a sammich!\nRestores 2 HP upon consumption\n"
-sammich_failed: .asciiz "Youve discovered a sammich!\nYou are holding four already!\nNo more 4 you!\n"
-setup_1: .asciiz "Hello! Welcome to AssemblyAdventure!\nType h for [h]elp. The interpreter process four character commands at a time.\nAnymore than that will be ignored or worse, crunked up.\nFind the diamond and goodluck!\n"
+consume: .asciiz "Youve eaten the sammich and feel much less hungry. HP +2. \n "
+consume_must: .asciiz "Slathering the mustard on you animal. HP +4. \n "
+sammich_success: .asciiz "Youve acquired a sammich! \n Restores 2 HP upon consumption \n "
+sammich_failed: .asciiz "Youve discovered a sammich! \n You are holding four already! \n No more 4 you! \n "
+setup_1: .asciiz "Hello! Welcome to AssemblyAdventure! \n Type h for [h]elp. The interpreter process four character commands at a time. \n Anymore than that will be ignored or worse, crunked up.\nFind the diamond and goodluck!\n"
 up: .asciiz "r"
 use: .asciiz "Use mustard? (y/n): "
 quit: .asciiz "q"
 vic: .asciiz "Thats a . . . diamond?! You win! I guess . . . whooooo . . .\n"
 totalm: .asciiz "Total Moves: "
-break: "b"
-break_success: "Youve slept a little. HP +1.\n"
-break_failure: "You've slept on a porcupine! IDIOT! HP -3.\n"
+break: .asciiz "b"
+break_success: .asciiz "Youve slept a little. HP +1.\n"
+break_failure: .asciiz "You've slept on a porcupine! IDIOT! HP -3.\n"
+help: .asciiz "h"
+help_stuff: .asciiz " h-> help \n w->FORWARD \n a->LEFT \n s->RIGHT \n d->RIGHT\n r->UP \n f->DOWN \n e->EAT \n b->NAPBREAK\n i->INVENTORY \n These commands are case senstive\n"
+u_have: .asciiz "You have: "
+siches: .asciiz " sammiches \n"
+mstered: .asciiz " mustard uses left \n"
+i: .asciiz "i"
 # Creature:  3
 # Diamond:  11
 # Empty:     1
@@ -68,7 +74,6 @@ break_failure: "You've slept on a porcupine! IDIOT! HP -3.\n"
     la $a0, %str
     li $v0, 4
     syscall
-    li $a0, 0
 .END_MACRO
 
 .MACRO reset_buffer
@@ -151,18 +156,14 @@ init:
     
     # Generate Pieces
     # 1% Of all squares are enemies
-    la $s0, array
     li $a3, 3   # Object Number
     li $a1, 512 # Array Max
     li $t0, 0   # Current Creatures
     li $t1, 51  # Max Creature Count
     jal creature_gen
     # Place Sammiches
-    la $s0, array
-    li $s1, 0  # Sammich Layers Handled
-    li $a1, 64 # Grid size in the layer
-    li $a2, 8  # Layers
-    li $a3, 6  # Sammiches to Be Placed
+    li $t1, 50 # Grid size in the layer
+    li $a2, 7  # Layers
     li $s2, 5  # Object Number
     jal sammich_controller
     # Place Mustards
@@ -198,6 +199,7 @@ array_init: # Generates an array of 1s
     b array_init
 
 creature_gen:
+    la $s0, array
     # Generate Index Number
     li $v0, 42
     syscall
@@ -208,46 +210,27 @@ creature_gen:
     mflo $a0
     
     # Store The Creature
-    add $a0, $s0, $a0
-    sw $a3, ($a0)
+    add $s0, $s0, $a0
+    sw $a3, ($s0)
     addi $t0, $t0, 1
     
     beq $t0, $t1, return
     b creature_gen
 
 sammich_controller: # Adjusts Layer
-    # Generate per layer
-    li $t0, 0 # Completed Sammiches
-    # Needed for more JAL
-    store_counter
-    # 6 Sammiches per layer, this will even out sammich distribution a little more
-    jal sammich_gen
-    addi $s1, $s1, 1
-    recover_counter
-    
-    beq $s1, $a2, return
+    li $t4, 4
+    blez $t1, return
+    li $v0, 42
+    li $a1, 512
+    syscall
     la $s0, array
+    mult $t4, $a0
+    mflo $t4
+    add $s0, $s0, $t4
+    sw $s2, ($s0)
+    addi $t1, $t1, -1
     b sammich_controller
 
-sammich_gen:
-    li $v0, 42
-    syscall
-    # 64 * Layer + Location
-    mult $a1,  $s1
-    mflo $t9
-    add $a0, $a0, $t9
-    li $v0, 4
-    mult $a0, $v0 # Convert Index -> Bytes
-    mflo $a0 # Index After Padding
-    add $s0, $s0, $a0
-    lw $t9, ($s0) # Extract Number
-    mult $t9, $s2 # Add A Sammich
-    mflo $t9 # Some composite number that indicates Sammich added
-    # add $s0, $s0, $a0
-    sw $t9, ($s0)
-    addi $t0, $t0, 1
-    beq $a3, $t0, return
-    b sammich_gen
 
 mustard_place:
     li $v0, 42
@@ -318,6 +301,14 @@ analyze:
     la $t1, break
     lbu $t1, ($t1)
     beq $t1, $t0, nap_time
+
+    la $t1, help
+    lbu $t1, ($t1)
+    beq $t1, $t0, halp
+
+    la $t1, i
+    lbu $t1, ($t1)
+    beq $t1, $t0, inven
 
     la $t1, nline
     lbu $t1, ($t1)
@@ -693,6 +684,30 @@ nap_time_failure:
     check_all
     j move_creatures
 
+halp:
+    print (help_stuff)
+    j move_creatures
+
+inven:
+    la $a0, u_have
+    li $v0, 4
+    syscall
+    li $v0, 1
+    lw $a0, sam
+    syscall
+    la $a0, siches
+    li $v0, 4
+    syscall
+    la $a0, u_have
+    li $v0, 4
+    syscall
+    li $v0, 1
+    lw $a0, must
+    syscall
+    la $a0, mstered
+    li $v0, 4
+    syscall
+    j move_creatures
 
 ## Math out the index
 #div $a0,  $t2 # x
