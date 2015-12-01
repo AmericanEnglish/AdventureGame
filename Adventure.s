@@ -59,8 +59,8 @@ z: .word 0
 .MACRO reset_buffer
     # Reset buffer space
     la $s0, buffer
-    sw $zero, ($s0)
-    sb $zero, 4($s0)
+    sw $zero, ($s7)
+    sb $zero, 4($s7)
 .END_MACRO
 
 .MACRO check_for (%obj) # Moves remainder into $t0
@@ -451,7 +451,7 @@ eet:
     # Move creature
 
 win:
-
+    check_for (11)
     beq $t0, $zero, victory
     jr $ra
 
