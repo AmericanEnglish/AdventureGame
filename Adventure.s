@@ -35,13 +35,20 @@ z: .word 0
 .MACRO store_counter
     addi $sp, $sp, -4
     sw $ra, ($sp)  
-.end_macro
+.END_MACRO
 
 
 .MACRO recover_counter
     lw $ra, ($sp)
     addi $sp, $sp, 4
-.end_macro
+.END_MACRO
+
+.MACRO print (%str)
+    la $a0, %str
+    li $v0, 4
+    syscall
+.END_MACRO
+
 
 .text 
 init:
@@ -269,7 +276,7 @@ back:
     store_counter
     jal decrement
     recover_counter
-    
+
     # Move Creatures
     j move_creatures
 
