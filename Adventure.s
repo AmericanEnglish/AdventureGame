@@ -450,7 +450,7 @@ decrement:
     jr $ra
 
 move_creatures:
-
+    j prompt_loop
 ## Math out the index
 #div $a0,  $t2 # x
 #mfhi $t4 # Store x
